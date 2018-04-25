@@ -17,13 +17,17 @@ public class Application {
 
     @RequestMapping("/env")
     public Map<String, Object> env() {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("version", System.getenv("SIMPLE_SERVICE_VERSION"));
+        HashMap<String, Object> root = new HashMap<>();
+
+        HashMap<String, Object> envMap = new HashMap<>();
+        envMap.put("SIMPLE_SERVICE_VERSION", System.getenv("SIMPLE_SERVICE_VERSION"));
         Map<String, String> env = System.getenv();
         for (String envName : env.keySet()) {
-            map.put(envName, env.get(envName));
+            envMap.put(envName, env.get(envName));
         }
-        return map;
+        root.put("env", envMap);
+        
+        return root;
     }
 
     public static void main(String[] args) {
