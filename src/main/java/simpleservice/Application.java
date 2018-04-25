@@ -16,7 +16,7 @@ public class Application {
     }
 
     @RequestMapping("/env")
-    public Map env() {
+    public Map<String, Object> env() {
         HashMap<String, Object> map = new HashMap<>();
         map.put("version", System.getenv("SIMPLE_SERVICE_VERSION"));
         Map<String, String> env = System.getenv();
