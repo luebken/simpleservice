@@ -1,7 +1,7 @@
 #! /usr/bin/make -f
 
 .DEFAULT_GOAL := help
-MY_VAR := $(shell kubectl get -o json svc/simpleservice-service |jq .status.loadBalancer.ingress[0].ip)
+MY_VAR := $(shell kubectl get -o json svc/simpleservice-service-a |jq .status.loadBalancer.ingress[0].ip)
 
 build: ## build the jar and docker image
 	./mvnw package
@@ -17,18 +17,28 @@ docker-push: ## push the docker image
 	docker push luebken/simpleservice
 
 kubectl-create: # creates a svc and deploy
-	kubectl create -f deployment.yaml
-	kubectl create -f service.yaml
+	kubectl create -f deployment-a.yaml
+	kubectl create -f service-a.yaml
+	kubectl create -f deployment-b.yaml
+	kubectl create -f service-b.yaml
+	kubectl create -f deployment-c.yaml
+	kubectl create -f service-c.yaml
 
 kubectl-apply: # updates a deploy
-	kubectl apply -f deployment.yaml
+	kubectl apply -f deployment-a.yaml
+	kubectl apply -f deployment-b.yaml
+	kubectl apply -f deployment-c.yaml
 
 kubectl-delete:
-	-kubectl delete svc/simpleservice-service
-	kubectl delete deploy/simpleservice-deploy
+	-kubectl delete svc/simpleservice-service-a
+	kubectl delete deploy/simpleservice-deploy-a
+	-kubectl delete svc/simpleservice-service-b
+	kubectl delete deploy/simpleservice-deploy-b
+	-kubectl delete svc/simpleservice-service-c
+	kubectl delete deploy/simpleservice-deploy-c
 
 curl:
-	curl $(MY_VAR)
+	curl $(MY_VAR)/env
 
 # via http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 help: ##Shows help message

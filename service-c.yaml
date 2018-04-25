@@ -1,12 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: simpleservice-service
+  name: simpleservice-service-c
 spec:
   selector:
-    app: simpleservice
+    app: simpleservice-c
   ports:
   - protocol: TCP
     port: 80
     targetPort: 8080
-  type: "LoadBalancer"

@@ -1,13 +1,13 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: simpleservice-deploy
+  name: simpleservice-deploy-c
 spec:
   replicas: 2
   template:
     metadata:
       labels:
-        app: simpleservice
+        app: simpleservice-c
     spec:
       containers:
       - name: simpleservice
@@ -17,5 +17,3 @@ spec:
         env:
         - name: SIMPLE_SERVICE_VERSION
           value: "0.0.1"
-        - name: SIMPLE_SERVICE_DOWNSTREAM_SERVICE
-          value: "http://simpleservice-service.mdl.svc.cluster.local"
