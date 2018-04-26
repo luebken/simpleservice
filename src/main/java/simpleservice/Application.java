@@ -3,11 +3,19 @@ package simpleservice;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+
 import org.springframework.http.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,23 +23,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 @RestController
 public class Application {
 
+    @Autowired
+    private RestTemplate restTemplate;
+    @Autowired
+    private HttpServletRequest request;
+    private static final Logger logger = LoggerFactory.getLogger("simpleservice");
+
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
         return restTemplateBuilder.build();
     }
 
-    @Autowired
-    private RestTemplate restTemplate;
-
-    @RequestMapping("/")
+    @RequestMapping("/last-endpoint")
     public String home() {
+        logger.info("Request to endpoint: " + request.getRequestURL().toString());
         return "Hello from SimpleService";
     }
 
-    @RequestMapping("/env")
-    public Map<String, Object> env() {
-        HashMap<String, Object> root = new HashMap<>();
+    @RequestMapping("/endpoint*")
+    public Map<String, Object> endpoint(@RequestHeader Map<String, String> requestHeader) {
+        logger.info("Request to endpoint: " + request.getRequestURL().toString());
 
+        HashMap<String, Object> root = new HashMap<>();
         HashMap<String, Object> envMap = new HashMap<>();
         envMap.put("SIMPLE_SERVICE_VERSION", System.getenv("SIMPLE_SERVICE_VERSION"));
         envMap.put("SIMPLE_SERVICE_DOWNSTREAM_SERVICE", System.getenv("SIMPLE_SERVICE_DOWNSTREAM_SERVICE"));
@@ -44,11 +57,14 @@ public class Application {
         // Check & call downstream service
         String downstream = System.getenv("SIMPLE_SERVICE_DOWNSTREAM_SERVICE");
         if (downstream != null && !downstream.trim().isEmpty()) {
+            logger.info("Found downstream service to call: " + downstream);
             HttpHeaders headers = new HttpHeaders();
             //headers.set(key, parameters.get(key));
             HttpEntity<String> entity = new HttpEntity<>(headers);
             ResponseEntity<String> response = restTemplate.exchange(downstream, HttpMethod.GET, entity, String.class);
             root.put(downstream, response.getBody());
+        } else {
+            logger.info("No downstream service to call");
         }
         return root;
     }

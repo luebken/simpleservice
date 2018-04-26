@@ -18,4 +18,4 @@ spec:
         - name: SIMPLE_SERVICE_VERSION
           value: "0.0.1"
         - name: SIMPLE_SERVICE_DOWNSTREAM_SERVICE
-          value: "http://simpleservice-service-b.mdl.svc.cluster.local/env"
+          value: "http://simpleservice-service-b.mdl.svc.cluster.local/endpoint-b"
