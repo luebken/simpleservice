@@ -2,6 +2,7 @@ package simpleservice;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -46,6 +47,7 @@ public class Application {
     public Map<String, Object> endpoint(@RequestHeader Map<String, String> requestHeader) {
         logger.info("Request to endpoint: " + request.getRequestURL().toString());
 
+        // Just some env stuff to return.
         HashMap<String, Object> root = new HashMap<>();
         HashMap<String, Object> envMap = new HashMap<>();
         envMap.put("SIMPLE_SERVICE_VERSION", System.getenv("SIMPLE_SERVICE_VERSION"));
@@ -56,6 +58,18 @@ public class Application {
             envMap.put(envName, env.get(envName));
         }
         root.put("env", envMap);
+
+        // kill every other service
+        int exitLikely = 0;
+        try {
+            exitLikely = Integer.parseInt(System.getenv("SIMPLE_SERVICE_EXIT_LIKELY"));
+            int x = new Random().nextInt() % exitLikely;
+            if (x == 0) {
+                logger.error("Unexpected ;-) error. System will exit with -1.");
+                System.exit(-1);
+            }
+        } catch (java.lang.NumberFormatException e) {
+        }
 
         // Check & call downstream services
         if (downstream != null && downstream.split(",").length > 0) {

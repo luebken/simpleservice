@@ -19,3 +19,5 @@ spec:
           value: "0.0.1"
         - name: SIMPLE_SERVICE_DOWNSTREAM_SERVICES
           value: "http://simpleservice-service-c.mdl.svc.cluster.local/last-endpoint"
+        - name: SIMPLE_SERVICE_EXIT_LIKELY
+          value: "3"
