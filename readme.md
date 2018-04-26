@@ -8,7 +8,12 @@ See [Makefile] to get it up and running.
 
 Demo the following call trace:
 
-curl -> service-a.local/endpoint-a -> service-b.local/endpoint-b -> service-c.local/last-endpoint
+curl 
+  -> service-a.local/endpoint-a 
+    -> service-b.local/endpoint-b 
+      -> service-c.local/last-endpoint
+    -> service-b.local/last-endpoint
+    -> service-b.local/last-endpoint
 
 
 ## Infra

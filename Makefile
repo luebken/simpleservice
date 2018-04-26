@@ -11,7 +11,7 @@ watch-kubectl: ## watch most relevant k8s resources
 	watch -n 1 kubectl get svc,deploy,po
 
 java-run: ## run the jar
-	export SIMPLE_SERVICE_DOWNSTREAM_SERVICE=http://localhost:8080; java -jar target/simpleservice-0.0.1.jar
+	export SIMPLE_SERVICE_DOWNSTREAM_SERVICES=http://localhost:8080,http://localhost:8080; java -jar target/simpleservice-0.0.1.jar
 
 docker-push: ## push the docker image
 	docker push luebken/simpleservice

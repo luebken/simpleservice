@@ -29,7 +29,7 @@ public class Application {
     private RestTemplate restTemplate;
     @Autowired
     private HttpServletRequest request;
-    private static final Logger logger = LoggerFactory.getLogger("simpleservice");
+    private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
@@ -49,24 +49,33 @@ public class Application {
         HashMap<String, Object> root = new HashMap<>();
         HashMap<String, Object> envMap = new HashMap<>();
         envMap.put("SIMPLE_SERVICE_VERSION", System.getenv("SIMPLE_SERVICE_VERSION"));
-        envMap.put("SIMPLE_SERVICE_DOWNSTREAM_SERVICE", System.getenv("SIMPLE_SERVICE_DOWNSTREAM_SERVICE"));
+        String downstream = System.getenv("SIMPLE_SERVICE_DOWNSTREAM_SERVICES");
+        envMap.put("SIMPLE_SERVICE_DOWNSTREAM_SERVICES", downstream);
         Map<String, String> env = System.getenv();
         for (String envName : env.keySet()) {
             envMap.put(envName, env.get(envName));
         }
         root.put("env", envMap);
 
-        // Check & call downstream service
-        String downstream = System.getenv("SIMPLE_SERVICE_DOWNSTREAM_SERVICE");
-        if (downstream != null && !downstream.trim().isEmpty()) {
-            logger.info("Found downstream service to call: " + downstream);
-            HttpHeaders headers = new HttpHeaders();
-            //headers.set(key, parameters.get(key));
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-            ResponseEntity<String> response = restTemplate.exchange(downstream, HttpMethod.GET, entity, String.class);
-            root.put(downstream, response.getBody());
+        // Check & call downstream services
+        if (downstream != null && downstream.split(",").length > 0) {
+            for (String svc : downstream.split(",")) {
+                logger.info("Found downstream service to call: " + svc);
+                HttpHeaders headers = new HttpHeaders();
+                //headers.set(key, parameters.get(key));
+                HttpEntity<String> entity = new HttpEntity<>(headers);
+                try {
+                    ResponseEntity<String> response = restTemplate.exchange(downstream, HttpMethod.GET, entity,
+                            String.class);
+                    root.put(svc, response.getBody());
+                } catch (org.springframework.web.client.HttpClientErrorException e) {
+                    logger.error("Error from downstream service: " + e);
+                    logger.info("Error handled. Not propagated.");
+                    root.put(svc, "Error" + e.toString());
+                }
+            }
         } else {
-            logger.info("No downstream service to call");
+            logger.info("No downstream services to call");
         }
         return root;
     }
